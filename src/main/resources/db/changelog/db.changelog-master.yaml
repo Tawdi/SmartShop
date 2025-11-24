@@ -3,3 +3,5 @@
         file: db/changelog/2025/11/24-01-changelog-create-user-table.yaml
     - include:
         file: db/changelog/2025/11/24-01-changelog-create-clients-table.yaml
+    - include:
+        file: db/changelog/2025/11/25-01-changelog-create-products-table.yaml
