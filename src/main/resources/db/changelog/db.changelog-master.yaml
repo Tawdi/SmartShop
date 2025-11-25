@@ -7,3 +7,5 @@
         file: db/changelog/2025/11/25-01-changelog-create-products-table.yaml
     - include:
         file: db/changelog/2025/11/25-01-changelog-create-order-tables.yaml
+    - include:
+        file: db/changelog/2025/11/25-02-insert-default-admin.yaml
