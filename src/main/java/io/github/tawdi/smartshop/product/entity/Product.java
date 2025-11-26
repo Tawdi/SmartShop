@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @SoftDelete
 public class Product extends StringEntity {
 
