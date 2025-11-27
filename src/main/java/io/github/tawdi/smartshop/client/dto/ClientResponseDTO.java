@@ -2,13 +2,14 @@ package io.github.tawdi.smartshop.client.dto;
 
 import io.github.tawdi.smartshop.client.entity.CustomerTier;
 import io.github.tawdi.smartshop.common.api.dto.BaseResponseDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ClientResponseDTO extends BaseResponseDTO<String> {
 
     private String name;
