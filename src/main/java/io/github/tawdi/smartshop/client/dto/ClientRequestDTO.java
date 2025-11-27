@@ -31,8 +31,10 @@ public class ClientRequestDTO {
     private String adresse;
 
     @NotBlank(groups = ValidationGroups.Create.class, message = "Le mot de passe est obligatoire")
-    @Size(min = 6, max = 100,message = "Le mot de passe doit faire au moins 6 caractères",groups = {ValidationGroups.Create.class ,ValidationGroups.Update.class})
+    @Size(min = 6, max = 100,message = "Le mot de passe doit faire au moins 6 caractères",groups = {ValidationGroups.Create.class })
     private String password;
 
-
+    @NotBlank(groups = ValidationGroups.Create.class, message = "Le username est obligatoire")
+    @Size(min = 6, max = 100,message = "Le username doit faire au moins 6 caractères",groups = {ValidationGroups.Create.class})
+    private String username;
 }
