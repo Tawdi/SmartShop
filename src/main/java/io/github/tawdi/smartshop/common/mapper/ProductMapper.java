@@ -1,11 +1,12 @@
-package io.github.tawdi.smartshop.common.dto.product;
+package io.github.tawdi.smartshop.common.mapper;
 
-import io.github.tawdi.smartshop.common.mapper.BaseMapper;
+import io.github.tawdi.smartshop.common.dto.product.ProductRequestDTO;
+import io.github.tawdi.smartshop.common.dto.product.ProductResponseDTO;
 import io.github.tawdi.smartshop.common.domain.entity.Product;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface ProductMapper extends BaseMapper<Product,ProductRequestDTO,ProductResponseDTO> {
+public interface ProductMapper extends BaseMapper<Product, ProductRequestDTO, ProductResponseDTO> {
 
     @Override
     @Mapping(target = "id", ignore = true)

@@ -16,12 +16,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+
 public class Order extends StringEntity {
 
     @NotNull
     @Column(nullable = false)
-    @Builder.Default
     private LocalDateTime orderDate = LocalDateTime.now();
 
     @Column(nullable = false, precision = 12, scale = 2)
@@ -44,7 +43,6 @@ public class Order extends StringEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
     private LocalDateTime confirmedAt;

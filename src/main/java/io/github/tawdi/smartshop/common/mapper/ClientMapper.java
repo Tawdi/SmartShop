@@ -1,14 +1,15 @@
-package io.github.tawdi.smartshop.common.dto.client;
+package io.github.tawdi.smartshop.common.mapper;
 
 import io.github.tawdi.smartshop.common.domain.entity.Client;
-import io.github.tawdi.smartshop.common.mapper.BaseMapper;
+import io.github.tawdi.smartshop.common.dto.client.ClientRequestDTO;
+import io.github.tawdi.smartshop.common.dto.client.ClientResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring" ,nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface ClientMapper extends BaseMapper<Client,ClientRequestDTO,ClientResponseDTO> {
+public interface ClientMapper extends BaseMapper<Client, ClientRequestDTO, ClientResponseDTO> {
 
     @Override
     @Mapping(target = "id", ignore = true)

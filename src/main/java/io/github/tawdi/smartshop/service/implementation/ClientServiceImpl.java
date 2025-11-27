@@ -3,7 +3,7 @@ package io.github.tawdi.smartshop.service.implementation;
 import io.github.tawdi.smartshop.common.domain.entity.User;
 import io.github.tawdi.smartshop.common.enums.UserRole;
 import io.github.tawdi.smartshop.common.domain.repository.UserRepository;
-import io.github.tawdi.smartshop.common.dto.client.ClientMapper;
+import io.github.tawdi.smartshop.common.mapper.ClientMapper;
 import io.github.tawdi.smartshop.common.dto.client.ClientRequestDTO;
 import io.github.tawdi.smartshop.common.dto.client.ClientResponseDTO;
 import io.github.tawdi.smartshop.common.dto.client.ClientWithStatisticsDTO;

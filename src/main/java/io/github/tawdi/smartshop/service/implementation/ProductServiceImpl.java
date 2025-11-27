@@ -1,7 +1,7 @@
 package io.github.tawdi.smartshop.service.implementation;
 
 import io.github.tawdi.smartshop.service.ProductService;
-import io.github.tawdi.smartshop.common.dto.product.ProductMapper;
+import io.github.tawdi.smartshop.common.mapper.ProductMapper;
 import io.github.tawdi.smartshop.common.dto.product.ProductRequestDTO;
 import io.github.tawdi.smartshop.common.dto.product.ProductResponseDTO;
 import io.github.tawdi.smartshop.common.domain.entity.Product;

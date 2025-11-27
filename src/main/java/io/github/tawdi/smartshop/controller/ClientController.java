@@ -1,6 +1,6 @@
 package io.github.tawdi.smartshop.controller;
 
-import io.github.tawdi.smartshop.common.dto.client.ClientMapper;
+import io.github.tawdi.smartshop.common.mapper.ClientMapper;
 import io.github.tawdi.smartshop.common.dto.client.ClientRequestDTO;
 import io.github.tawdi.smartshop.common.dto.client.ClientResponseDTO;
 import io.github.tawdi.smartshop.common.dto.client.ClientWithStatisticsDTO;
