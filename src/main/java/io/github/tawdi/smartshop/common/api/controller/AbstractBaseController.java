@@ -5,8 +5,6 @@ import io.github.tawdi.smartshop.common.api.dto.ValidationGroups;
 import io.github.tawdi.smartshop.common.domain.entity.BaseEntity;
 import io.github.tawdi.smartshop.common.mapper.BaseMapper;
 import io.github.tawdi.smartshop.common.service.BaseCrudService;
-import io.github.tawdi.smartshop.common.specification.FilterParser;
-import io.github.tawdi.smartshop.common.specification.GenericSpecification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springdoc.core.annotations.ParameterObject;
@@ -14,11 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.ParameterizedType;
 
 public abstract class AbstractBaseController<T extends BaseEntity<I>, I, R1, R2> implements BaseController<T, I, R1, R2> {
 
@@ -31,7 +26,7 @@ public abstract class AbstractBaseController<T extends BaseEntity<I>, I, R1, R2>
     }
 
     @Override
-    @PostMapping({"", "/" })
+    @PostMapping({"", "/"})
     @Operation(
             summary = "Create a new resource",
             description = "Creates a new resource with the provided data. All required fields must be provided."
@@ -81,27 +76,14 @@ public abstract class AbstractBaseController<T extends BaseEntity<I>, I, R1, R2>
 
     @Override
     @GetMapping
-//    @GetMapping("/paginated")
     @Operation(
             summary = "Get paginated resources",
             description = "Retrieves resources with pagination support. Use page, size, and sort parameters for control."
     )
     @ApiResponse(responseCode = "200", description = "Paginated resources retrieved successfully")
-    public ResponseEntity<ApiResponseDTO<Page<R2>>> getAllPaginated(
-            @ParameterObject Pageable pageable,
-            @RequestParam(required = false) MultiValueMap<String, String> filters
-    ) {
-        Class<T> entityClass = getEntityClass();
-        GenericSpecification<T> spec = FilterParser.parse(filters, entityClass);
-
-        Page<R2> responseDTOPage = service.findAll(pageable, spec);
+    public ResponseEntity<ApiResponseDTO<Page<R2>>> getAllPaginated(@ParameterObject Pageable pageable) {
+        Page<R2> responseDTOPage = service.findAll(pageable);
         return ResponseEntity.ok(ApiResponseDTO.success("Resources retrieved successfully", responseDTOPage));
-    }
-
-    @SuppressWarnings("unchecked")
-    private Class<T> getEntityClass() {
-        ParameterizedType type = (ParameterizedType) getClass().getGenericSuperclass();
-        return (Class<T>) type.getActualTypeArguments()[0];
     }
 
     @Override

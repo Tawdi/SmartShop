@@ -13,7 +13,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Client extends StringEntity {
 
     @Column(nullable = false, length = 100)

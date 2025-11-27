@@ -53,6 +53,7 @@ public class Payment extends LongEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private PaymentStatus status = PaymentStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
