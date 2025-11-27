@@ -1,6 +1,6 @@
 package io.github.tawdi.smartshop.common.exception;
 
-import io.github.tawdi.smartshop.common.api.dto.ApiResponseDTO;
+import io.github.tawdi.smartshop.common.dto.ApiResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

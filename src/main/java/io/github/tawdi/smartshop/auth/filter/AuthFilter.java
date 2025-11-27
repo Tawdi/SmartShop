@@ -1,6 +1,6 @@
 package io.github.tawdi.smartshop.auth.filter;
 
-import io.github.tawdi.smartshop.auth.dto.LoginResponse;
+import io.github.tawdi.smartshop.common.dto.auth.LoginResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,9 +1,9 @@
 package io.github.tawdi.smartshop.auth.service;
 
-import io.github.tawdi.smartshop.auth.dto.LoginRequest;
-import io.github.tawdi.smartshop.auth.dto.LoginResponse;
-import io.github.tawdi.smartshop.auth.entity.User;
-import io.github.tawdi.smartshop.auth.repository.UserRepository;
+import io.github.tawdi.smartshop.common.dto.auth.LoginRequest;
+import io.github.tawdi.smartshop.common.dto.auth.LoginResponse;
+import io.github.tawdi.smartshop.common.domain.entity.User;
+import io.github.tawdi.smartshop.common.domain.repository.UserRepository;
 import io.github.tawdi.smartshop.common.exception.AuthenticationException;
 import io.github.tawdi.smartshop.common.exception.ResourceNotFoundException;
 import io.github.tawdi.smartshop.util.PasswordUtil;

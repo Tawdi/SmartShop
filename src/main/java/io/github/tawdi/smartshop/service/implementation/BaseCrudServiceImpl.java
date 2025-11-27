@@ -1,0 +1,90 @@
+package io.github.tawdi.smartshop.service.implementation;
+
+import io.github.tawdi.smartshop.common.domain.entity.BaseEntity;
+import io.github.tawdi.smartshop.common.domain.repository.GenericRepository;
+import io.github.tawdi.smartshop.common.exception.ResourceNotFoundException;
+import io.github.tawdi.smartshop.common.mapper.BaseMapper;
+import io.github.tawdi.smartshop.service.BaseCrudService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+public abstract class BaseCrudServiceImpl<T extends BaseEntity<I>, R1, R2, I> implements BaseCrudService<T, R1, R2, I> {
+
+    protected final GenericRepository<T, I> repository;
+    protected final BaseMapper<T, R1, R2> mapper;
+
+    protected BaseCrudServiceImpl(GenericRepository<T, I> repository, BaseMapper<T, R1, R2> mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
+
+    @Override
+    @Transactional
+    public R2 save(R1 requestDto) {
+        T entity = mapper.toEntity(requestDto);
+        T savedEntity = repository.save(entity);
+        return mapper.toDto(savedEntity);
+    }
+
+    @Override
+    @Transactional
+    public R2 update(I id, R1 requestDTO) {
+
+        T existingEntity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + id));
+
+        mapper.updateEntityFromDto(requestDTO, existingEntity);
+
+        T savedEntity = repository.save(existingEntity);
+        return mapper.toDto(savedEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public R2 findById(I id) {
+        T entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + id));
+        return mapper.toDto(entity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<R2> findAll() {
+        List<T> entities = repository.findAll();
+        return mapper.entitiesToResponseDtos(entities);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<R2> findAll(Pageable pageable) {
+        Page<T> entityPage = repository.findAll(pageable);
+        return entityPage.map(mapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<R2> findAll(Pageable pageable, Specification<T> spec) {
+        Page<T> entityPage = repository.findAll(spec, pageable);
+        return entityPage.map(mapper::toDto);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(I id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Resource not found with id: " + id);
+        }
+        repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsById(I id) {
+        return repository.existsById(id);
+    }
+
+}
