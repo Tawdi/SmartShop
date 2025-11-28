@@ -6,6 +6,7 @@ import io.github.tawdi.smartshop.domain.repository.ClientRepository;
 import io.github.tawdi.smartshop.domain.repository.UserRepository;
 import io.github.tawdi.smartshop.dto.client.ClientRequestDTO;
 import io.github.tawdi.smartshop.dto.client.ClientResponseDTO;
+import io.github.tawdi.smartshop.dto.client.ClientStats;
 import io.github.tawdi.smartshop.dto.client.ClientWithStatisticsDTO;
 import io.github.tawdi.smartshop.enums.CustomerTier;
 import io.github.tawdi.smartshop.enums.UserRole;
@@ -65,18 +66,11 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
         Client client = repository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client introuvable"));
 
-        Object[] stats = (Object[]) clientRepository.getClientStatistics(clientId);
+        ClientStats stats = clientRepository.getClientStatistics(clientId);
 
-        Long totalOrders = 0L;
-        Long confirmedOrders = 0L;
-        BigDecimal totalConfirmedAmount = BigDecimal.ZERO;
-        BigDecimal totalSpent = BigDecimal.ZERO;
 
-        if (stats != null && stats.length != 0) {
-            totalOrders = (Long) stats[0];
-            confirmedOrders = (Long) stats[1];
-            totalConfirmedAmount = (BigDecimal) stats[2];
-            totalSpent = (BigDecimal) stats[3];
+        if (stats == null) {
+            stats = new ClientStats(0L, 0L, BigDecimal.ZERO, BigDecimal.ZERO);
         }
         CustomerTier currentTier = client.getTier();
 
@@ -89,13 +83,13 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
                 .telephone(client.getTelephone())
                 .adresse(client.getAdresse())
                 .tier(currentTier)
-                .totalOrders(totalOrders)
-                .confirmedOrders(confirmedOrders)
-                .totalConfirmedAmount(totalConfirmedAmount)
-                .totalSpent(totalSpent)
+                .totalOrders(stats.totalOrders())
+                .confirmedOrders(stats.confirmedOrdersCount())
+                .totalConfirmedAmount(stats.totalConfirmedAmount())
+                .totalSpent(stats.totalPaidAmount())
                 .currentDiscountRate(TierHelper.discountRateForTier(currentTier))
                 .nextTier(getNextTier(currentTier))
-                .amountNeededForNextTier(calculateAmountForNextTier(currentTier, totalSpent))
+                .amountNeededForNextTier(calculateAmountForNextTier(currentTier, stats.totalPaidAmount()))
                 .build();
     }
 
