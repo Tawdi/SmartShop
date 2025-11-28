@@ -1,11 +1,11 @@
 package io.github.tawdi.smartshop.auth.service;
 
-import io.github.tawdi.smartshop.auth.dto.LoginRequest;
-import io.github.tawdi.smartshop.auth.dto.LoginResponse;
-import io.github.tawdi.smartshop.auth.entity.User;
-import io.github.tawdi.smartshop.auth.repository.UserRepository;
-import io.github.tawdi.smartshop.common.exception.AuthenticationException;
-import io.github.tawdi.smartshop.common.exception.ResourceNotFoundException;
+import io.github.tawdi.smartshop.dto.auth.LoginRequest;
+import io.github.tawdi.smartshop.dto.auth.LoginResponse;
+import io.github.tawdi.smartshop.domain.entity.User;
+import io.github.tawdi.smartshop.domain.repository.UserRepository;
+import io.github.tawdi.smartshop.exception.AuthenticationException;
+import io.github.tawdi.smartshop.exception.ResourceNotFoundException;
 import io.github.tawdi.smartshop.util.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

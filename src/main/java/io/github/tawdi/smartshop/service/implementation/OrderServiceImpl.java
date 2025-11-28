@@ -1,0 +1,147 @@
+package io.github.tawdi.smartshop.service.implementation;
+
+import io.github.tawdi.smartshop.domain.entity.Client;
+import io.github.tawdi.smartshop.domain.entity.Order;
+import io.github.tawdi.smartshop.domain.entity.OrderItem;
+import io.github.tawdi.smartshop.domain.entity.Product;
+import io.github.tawdi.smartshop.domain.repository.ClientRepository;
+import io.github.tawdi.smartshop.domain.repository.OrderRepository;
+import io.github.tawdi.smartshop.domain.repository.ProductRepository;
+import io.github.tawdi.smartshop.dto.order.OrderItemRequestDTO;
+import io.github.tawdi.smartshop.dto.order.OrderRequestDTO;
+import io.github.tawdi.smartshop.dto.order.OrderResponseDTO;
+import io.github.tawdi.smartshop.enums.CustomerTier;
+import io.github.tawdi.smartshop.enums.OrderStatus;
+import io.github.tawdi.smartshop.exception.BusinessRuleViolationException;
+import io.github.tawdi.smartshop.exception.ResourceNotFoundException;
+import io.github.tawdi.smartshop.mapper.OrderMapper;
+import io.github.tawdi.smartshop.service.OrderService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestDTO, OrderResponseDTO> implements OrderService {
+
+    private final ClientRepository clientRepository;
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
+
+    public OrderServiceImpl(OrderRepository repository, OrderMapper mapper, ClientRepository clientRepository, ProductRepository productRepository) {
+        super(repository, mapper);
+        this.orderMapper = mapper;
+        this.orderRepository = repository;
+        this.clientRepository = clientRepository;
+        this.productRepository = productRepository;
+    }
+
+    @Override
+    @Transactional
+    public OrderResponseDTO save(OrderRequestDTO dto) {
+
+        Client client = loadClient(dto.getClientId());
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal subtotalHT = BigDecimal.ZERO;
+
+        // Charger les produits
+        for (OrderItemRequestDTO itemDTO : dto.getItems()) {
+
+            Product product = loadProduct(itemDTO.getProductId());
+
+            if (product.getStock() < itemDTO.getQuantity()) {
+                throw new BusinessRuleViolationException(
+                        String.format("Stock insuffisant pour le produit %s. Disponible : %d, Demandé : %d",
+                                product.getName(), product.getStock(), itemDTO.getQuantity())
+                );
+            }
+
+            BigDecimal line = product.getPriceHT().multiply(BigDecimal.valueOf(itemDTO.getQuantity()));
+            subtotalHT = subtotalHT.add(line);
+
+            OrderItem orderItem = OrderItem.builder()
+                    .product(product)
+                    .quantity(itemDTO.getQuantity())
+                    .unitPriceHT(product.getPriceHT())
+                    .lineTotalHT(line)
+                    .build();
+
+            orderItems.add(orderItem);
+        }
+
+        // Calculer la remise de Tier
+        CustomerTier tier = client.getTier();
+        BigDecimal loyaltyDiscount = BigDecimal.ZERO;
+
+        if (tier == CustomerTier.SILVER && subtotalHT.compareTo(new BigDecimal("500")) >= 0) {
+            loyaltyDiscount = subtotalHT.multiply(new BigDecimal("0.05"));
+        } else if (tier == CustomerTier.GOLD && subtotalHT.compareTo(new BigDecimal("800")) >= 0) {
+            loyaltyDiscount = subtotalHT.multiply(new BigDecimal("0.10"));
+        } else if (tier == CustomerTier.PLATINUM && subtotalHT.compareTo(new BigDecimal("1200")) >= 0) {
+            loyaltyDiscount = subtotalHT.multiply(new BigDecimal("0.15"));
+        }
+
+        // Appliquer le code promo
+
+        BigDecimal promoDiscount = BigDecimal.ZERO;
+        String appliedPromoCode = null;
+
+        // Calcul total des remises
+        BigDecimal totalDiscount = loyaltyDiscount.add(promoDiscount);
+
+        // Montant HT après remise
+        BigDecimal amountAfterDiscount = subtotalHT.subtract(totalDiscount);
+
+        // TVA 20% sur le montant APRÈS remise (règle marocaine)
+        BigDecimal tvaRate = new BigDecimal("0.20");
+        BigDecimal tvaAmount = amountAfterDiscount.multiply(tvaRate)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        // Total TTC
+        BigDecimal totalTTC = amountAfterDiscount.add(tvaAmount)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        Order order = new Order();
+        order.setClient(client);
+        order.setOrderDate(LocalDateTime.now());
+        order.setSubtotalHT(subtotalHT.setScale(2, RoundingMode.HALF_UP));
+        order.setDiscountAmount(totalDiscount.setScale(2, RoundingMode.HALF_UP));
+        order.setDiscountCode(appliedPromoCode);
+        order.setTvaAmount(tvaAmount);
+        order.setTotalTTC(totalTTC);
+        order.setRemainingAmount(totalTTC);
+        order.setStatus(OrderStatus.PENDING);
+
+
+        for (OrderItem item : orderItems) {
+            item.setOrder(order);
+//            order.getOrderItems().add(item);
+        }
+        order.setOrderItems(orderItems);
+
+        Order savedOrder = orderRepository.save(order);
+
+        for (OrderItem item : savedOrder.getOrderItems()) {
+            Product p = item.getProduct();
+            p.setStock(p.getStock() - item.getQuantity());
+            productRepository.save(p);
+        }
+        return orderMapper.toDto(savedOrder);
+    }
+
+    private Client loadClient(String id) {
+        return clientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client non trouvé avec l'ID : " + id));
+    }
+
+    private Product loadProduct(String id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produit non trouvé avec l'ID : " + id));
+    }
+}

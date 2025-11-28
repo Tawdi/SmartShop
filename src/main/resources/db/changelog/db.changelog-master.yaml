@@ -9,3 +9,5 @@
         file: db/changelog/2025/11/25-01-changelog-create-order-tables.yaml
     - include:
         file: db/changelog/2025/11/25-02-insert-default-admin.yaml
+    - include:
+        file: db/changelog/2025/11/28-01-changelog-add-column-to-order_items-table.yaml

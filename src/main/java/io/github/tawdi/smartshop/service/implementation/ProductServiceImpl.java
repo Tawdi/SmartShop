@@ -1,0 +1,17 @@
+package io.github.tawdi.smartshop.service.implementation;
+
+import io.github.tawdi.smartshop.service.ProductService;
+import io.github.tawdi.smartshop.mapper.ProductMapper;
+import io.github.tawdi.smartshop.dto.product.ProductRequestDTO;
+import io.github.tawdi.smartshop.dto.product.ProductResponseDTO;
+import io.github.tawdi.smartshop.domain.entity.Product;
+import io.github.tawdi.smartshop.domain.repository.ProductRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProductServiceImpl extends StringCrudServiceImpl<Product, ProductRequestDTO, ProductResponseDTO> implements ProductService {
+
+    public ProductServiceImpl(ProductRepository repository , ProductMapper mapper){
+        super(repository,mapper);
+    }
+}

@@ -1,6 +1,6 @@
 package io.github.tawdi.smartshop.auth.filter;
 
-import io.github.tawdi.smartshop.auth.dto.LoginResponse;
+import io.github.tawdi.smartshop.dto.auth.LoginResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // Routes public
-        if (path.equals("/") ||
+        if (path.startsWith("/") ||
                 path.startsWith("/api/auth/") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
