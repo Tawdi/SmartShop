@@ -1,9 +1,9 @@
 package io.github.tawdi.smartshop.service.implementation;
 
-import io.github.tawdi.smartshop.common.domain.entity.BaseEntity;
-import io.github.tawdi.smartshop.common.domain.repository.GenericRepository;
-import io.github.tawdi.smartshop.common.exception.ResourceNotFoundException;
-import io.github.tawdi.smartshop.common.mapper.BaseMapper;
+import io.github.tawdi.smartshop.domain.entity.BaseEntity;
+import io.github.tawdi.smartshop.domain.repository.GenericRepository;
+import io.github.tawdi.smartshop.exception.ResourceNotFoundException;
+import io.github.tawdi.smartshop.mapper.BaseMapper;
 import io.github.tawdi.smartshop.service.BaseCrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,9 +1,9 @@
 package io.github.tawdi.smartshop.service.implementation;
 
 
-import io.github.tawdi.smartshop.common.domain.entity.id.StringEntity;
-import io.github.tawdi.smartshop.common.domain.repository.StringRepository;
-import io.github.tawdi.smartshop.common.mapper.BaseMapper;
+import io.github.tawdi.smartshop.domain.entity.id.StringEntity;
+import io.github.tawdi.smartshop.domain.repository.StringRepository;
+import io.github.tawdi.smartshop.mapper.BaseMapper;
 import io.github.tawdi.smartshop.service.StringCrudService;
 
 public abstract class StringCrudServiceImpl<T extends StringEntity, R1, R2>

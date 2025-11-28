@@ -1,18 +1,20 @@
 package io.github.tawdi.smartshop.service.implementation;
 
-import io.github.tawdi.smartshop.common.domain.entity.User;
-import io.github.tawdi.smartshop.common.enums.UserRole;
-import io.github.tawdi.smartshop.common.domain.repository.UserRepository;
-import io.github.tawdi.smartshop.common.mapper.ClientMapper;
-import io.github.tawdi.smartshop.common.dto.client.ClientRequestDTO;
-import io.github.tawdi.smartshop.common.dto.client.ClientResponseDTO;
-import io.github.tawdi.smartshop.common.dto.client.ClientWithStatisticsDTO;
-import io.github.tawdi.smartshop.common.domain.entity.Client;
-import io.github.tawdi.smartshop.common.enums.CustomerTier;
-import io.github.tawdi.smartshop.common.domain.repository.ClientRepository;
-import io.github.tawdi.smartshop.common.exception.ResourceNotFoundException;
+import io.github.tawdi.smartshop.domain.entity.Client;
+import io.github.tawdi.smartshop.domain.entity.User;
+import io.github.tawdi.smartshop.domain.repository.ClientRepository;
+import io.github.tawdi.smartshop.domain.repository.UserRepository;
+import io.github.tawdi.smartshop.dto.client.ClientRequestDTO;
+import io.github.tawdi.smartshop.dto.client.ClientResponseDTO;
+import io.github.tawdi.smartshop.dto.client.ClientWithStatisticsDTO;
+import io.github.tawdi.smartshop.enums.CustomerTier;
+import io.github.tawdi.smartshop.enums.UserRole;
+import io.github.tawdi.smartshop.exception.AuthenticationException;
+import io.github.tawdi.smartshop.exception.ResourceNotFoundException;
+import io.github.tawdi.smartshop.mapper.ClientMapper;
 import io.github.tawdi.smartshop.service.ClientService;
 import io.github.tawdi.smartshop.util.PasswordUtil;
+import io.github.tawdi.smartshop.util.TierHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +26,8 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
 
-    public ClientServiceImpl(ClientRepository repository, ClientMapper mapper , UserRepository userRepository){
-        super(repository,mapper);
+    public ClientServiceImpl(ClientRepository repository, ClientMapper mapper, UserRepository userRepository) {
+        super(repository, mapper);
         this.clientRepository = repository;
         this.userRepository = userRepository;
     }
@@ -37,6 +39,10 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
     }
 
     public ClientResponseDTO createClientWithUser(ClientRequestDTO dto) {
+
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new AuthenticationException("Ce nom d'utilisateur n'est pas disponible");
+        }
 
         User user = User.builder()
                 .username(dto.getUsername())
@@ -59,18 +65,18 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
         Client client = repository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client introuvable"));
 
-        Object[] stats = clientRepository.getClientStatistics(clientId);
+        Object[] stats = (Object[]) clientRepository.getClientStatistics(clientId);
 
         Long totalOrders = 0L;
         Long confirmedOrders = 0L;
         BigDecimal totalConfirmedAmount = BigDecimal.ZERO;
         BigDecimal totalSpent = BigDecimal.ZERO;
 
-        if (stats != null && stats.length == 4) {
-            totalOrders = (Long) stats[0] ;
-            confirmedOrders = (Long) stats[1] ;
+        if (stats != null && stats.length != 0) {
+            totalOrders = (Long) stats[0];
+            confirmedOrders = (Long) stats[1];
             totalConfirmedAmount = (BigDecimal) stats[2];
-            totalSpent =  (BigDecimal) stats[3];
+            totalSpent = (BigDecimal) stats[3];
         }
         CustomerTier currentTier = client.getTier();
 
@@ -87,20 +93,20 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
                 .confirmedOrders(confirmedOrders)
                 .totalConfirmedAmount(totalConfirmedAmount)
                 .totalSpent(totalSpent)
-                .currentDiscountRate(getDiscountRate(currentTier))
+                .currentDiscountRate(TierHelper.discountRateForTier(currentTier))
                 .nextTier(getNextTier(currentTier))
-                .amountNeededForNextTier(calculateAmountForNextTier(currentTier,totalSpent))
+                .amountNeededForNextTier(calculateAmountForNextTier(currentTier, totalSpent))
                 .build();
     }
-
-    private Double getDiscountRate(CustomerTier tier) {
-        return switch (tier) {
-            case SILVER -> 5.0;
-            case GOLD -> 10.0;
-            case PLATINUM -> 15.0;
-            default -> 0.0;
-        };
-    }
+//
+//    private Double getDiscountRate(CustomerTier tier) {
+//        return switch (tier) {
+//            case SILVER -> 5.0;
+//            case GOLD -> 10.0;
+//            case PLATINUM -> 15.0;
+//            default -> 0.0;
+//        };
+//    }
 
     private String getNextTier(CustomerTier current) {
         return switch (current) {
@@ -113,9 +119,10 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
 
     private BigDecimal calculateAmountForNextTier(CustomerTier current, BigDecimal spent) {
         return switch (current) {
-            case BASIC -> new BigDecimal("1000").subtract(spent.max(BigDecimal.ZERO));
-            case SILVER -> new BigDecimal("5000").subtract(spent);
-            case GOLD -> new BigDecimal("15000").subtract(spent);
+            case BASIC ->
+                    new BigDecimal(TierHelper.amountForNextTier(CustomerTier.BASIC)).subtract(spent.max(BigDecimal.ZERO));
+            case SILVER -> new BigDecimal(TierHelper.amountForNextTier(CustomerTier.SILVER)).subtract(spent);
+            case GOLD -> new BigDecimal(TierHelper.amountForNextTier(CustomerTier.GOLD)).subtract(spent);
             case PLATINUM -> BigDecimal.ZERO;
         };
     }

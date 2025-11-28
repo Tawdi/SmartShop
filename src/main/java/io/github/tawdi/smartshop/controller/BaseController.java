@@ -1,7 +1,7 @@
 package io.github.tawdi.smartshop.controller;
 
-import io.github.tawdi.smartshop.common.dto.ApiResponseDTO;
-import io.github.tawdi.smartshop.common.domain.entity.BaseEntity;
+import io.github.tawdi.smartshop.dto.ApiResponseDTO;
+import io.github.tawdi.smartshop.domain.entity.BaseEntity;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

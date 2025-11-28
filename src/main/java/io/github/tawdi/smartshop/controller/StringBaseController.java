@@ -1,7 +1,7 @@
 package io.github.tawdi.smartshop.controller;
 
-import io.github.tawdi.smartshop.common.domain.entity.id.StringEntity;
-import io.github.tawdi.smartshop.common.mapper.BaseMapper;
+import io.github.tawdi.smartshop.domain.entity.id.StringEntity;
+import io.github.tawdi.smartshop.mapper.BaseMapper;
 import io.github.tawdi.smartshop.service.StringCrudService;
 
 public abstract class StringBaseController<T extends StringEntity, R1, R2> extends AbstractBaseController<T, String, R1, R2> {

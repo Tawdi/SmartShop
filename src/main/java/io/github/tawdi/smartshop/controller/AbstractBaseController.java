@@ -1,9 +1,9 @@
 package io.github.tawdi.smartshop.controller;
 
-import io.github.tawdi.smartshop.common.dto.ApiResponseDTO;
-import io.github.tawdi.smartshop.common.dto.ValidationGroups;
-import io.github.tawdi.smartshop.common.domain.entity.BaseEntity;
-import io.github.tawdi.smartshop.common.mapper.BaseMapper;
+import io.github.tawdi.smartshop.dto.ApiResponseDTO;
+import io.github.tawdi.smartshop.dto.ValidationGroups;
+import io.github.tawdi.smartshop.domain.entity.BaseEntity;
+import io.github.tawdi.smartshop.mapper.BaseMapper;
 import io.github.tawdi.smartshop.service.BaseCrudService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

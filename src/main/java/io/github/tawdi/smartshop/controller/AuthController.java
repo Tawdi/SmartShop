@@ -1,9 +1,9 @@
 package io.github.tawdi.smartshop.controller;
 
-import io.github.tawdi.smartshop.common.dto.auth.LoginRequest;
-import io.github.tawdi.smartshop.common.dto.auth.LoginResponse;
+import io.github.tawdi.smartshop.dto.auth.LoginRequest;
+import io.github.tawdi.smartshop.dto.auth.LoginResponse;
 import io.github.tawdi.smartshop.auth.service.AuthService;
-import io.github.tawdi.smartshop.common.dto.ApiResponseDTO;
+import io.github.tawdi.smartshop.dto.ApiResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;

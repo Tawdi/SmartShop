@@ -1,12 +1,12 @@
 package io.github.tawdi.smartshop.controller;
 
-import io.github.tawdi.smartshop.common.mapper.ClientMapper;
-import io.github.tawdi.smartshop.common.dto.client.ClientRequestDTO;
-import io.github.tawdi.smartshop.common.dto.client.ClientResponseDTO;
-import io.github.tawdi.smartshop.common.dto.client.ClientWithStatisticsDTO;
-import io.github.tawdi.smartshop.common.domain.entity.Client;
+import io.github.tawdi.smartshop.mapper.ClientMapper;
+import io.github.tawdi.smartshop.dto.client.ClientRequestDTO;
+import io.github.tawdi.smartshop.dto.client.ClientResponseDTO;
+import io.github.tawdi.smartshop.dto.client.ClientWithStatisticsDTO;
+import io.github.tawdi.smartshop.domain.entity.Client;
 import io.github.tawdi.smartshop.service.ClientService;
-import io.github.tawdi.smartshop.common.dto.ApiResponseDTO;
+import io.github.tawdi.smartshop.dto.ApiResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
