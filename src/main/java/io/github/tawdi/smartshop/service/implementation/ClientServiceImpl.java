@@ -98,15 +98,6 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
                 .amountNeededForNextTier(calculateAmountForNextTier(currentTier, totalSpent))
                 .build();
     }
-//
-//    private Double getDiscountRate(CustomerTier tier) {
-//        return switch (tier) {
-//            case SILVER -> 5.0;
-//            case GOLD -> 10.0;
-//            case PLATINUM -> 15.0;
-//            default -> 0.0;
-//        };
-//    }
 
     private String getNextTier(CustomerTier current) {
         return switch (current) {
@@ -119,10 +110,9 @@ public class ClientServiceImpl extends StringCrudServiceImpl<Client, ClientReque
 
     private BigDecimal calculateAmountForNextTier(CustomerTier current, BigDecimal spent) {
         return switch (current) {
-            case BASIC ->
-                    new BigDecimal(TierHelper.amountForNextTier(CustomerTier.BASIC)).subtract(spent.max(BigDecimal.ZERO));
-            case SILVER -> new BigDecimal(TierHelper.amountForNextTier(CustomerTier.SILVER)).subtract(spent);
-            case GOLD -> new BigDecimal(TierHelper.amountForNextTier(CustomerTier.GOLD)).subtract(spent);
+            case BASIC -> TierHelper.amountForNextTier(CustomerTier.BASIC).subtract(spent.max(BigDecimal.ZERO));
+            case SILVER -> TierHelper.amountForNextTier(CustomerTier.SILVER).subtract(spent);
+            case GOLD -> TierHelper.amountForNextTier(CustomerTier.GOLD).subtract(spent);
             case PLATINUM -> BigDecimal.ZERO;
         };
     }
