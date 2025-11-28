@@ -7,6 +7,7 @@ import io.github.tawdi.smartshop.domain.entity.Product;
 import io.github.tawdi.smartshop.domain.repository.ClientRepository;
 import io.github.tawdi.smartshop.domain.repository.OrderRepository;
 import io.github.tawdi.smartshop.domain.repository.ProductRepository;
+import io.github.tawdi.smartshop.dto.client.ClientStats;
 import io.github.tawdi.smartshop.dto.order.OrderItemRequestDTO;
 import io.github.tawdi.smartshop.dto.order.OrderRequestDTO;
 import io.github.tawdi.smartshop.dto.order.OrderResponseDTO;
@@ -16,6 +17,7 @@ import io.github.tawdi.smartshop.exception.BusinessRuleViolationException;
 import io.github.tawdi.smartshop.exception.ResourceNotFoundException;
 import io.github.tawdi.smartshop.mapper.OrderMapper;
 import io.github.tawdi.smartshop.service.OrderService;
+import io.github.tawdi.smartshop.util.TierHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +55,7 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         // Charger les produits
         for (OrderItemRequestDTO itemDTO : dto.getItems()) {
 
-            Product product = loadProduct(itemDTO.getProductId());
+            Product product = loadProduct(itemDTO.getProductId(),false);
 
             if (product.getStock() < itemDTO.getQuantity()) {
                 throw new BusinessRuleViolationException(
@@ -135,13 +137,53 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         return orderMapper.toDto(savedOrder);
     }
 
+    @Transactional
+    public OrderResponseDTO confirmOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande introuvable"));
+
+        if (!OrderStatus.PENDING.equals(order.getStatus())) {
+            throw new BusinessRuleViolationException("Seules les commandes PENDING peuvent être confirmées");
+        }
+
+        if (order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0) {
+            throw new BusinessRuleViolationException("La commande doit être totalement payée avant confirmation");
+        }
+
+        order.setStatus(OrderStatus.CONFIRMED);
+        order = orderRepository.save(order);
+
+        Client client = order.getClient();
+
+        ClientStats stats = clientRepository.getClientStatistics(client.getId());
+        long confirmedOrders = stats != null ? stats.confirmedOrdersCount() : 0L;
+        BigDecimal totalConfirmedAmount = stats != null ? stats.totalConfirmedAmount() : BigDecimal.ZERO;
+
+        client = updateClientTier(client, confirmedOrders, totalConfirmedAmount);
+
+        return orderMapper.toDto(order);
+    }
+
+
+    public Client updateClientTier(Client client, long confirmedOrderCount, BigDecimal totalConfirmedAmount) {
+
+        CustomerTier newTier = TierHelper.calculateTier(confirmedOrderCount, totalConfirmedAmount);
+
+        if (client.getTier() == null || newTier.ordinal() > client.getTier().ordinal()) {
+            client.setTier(newTier);
+            client = clientRepository.save(client);
+        }
+
+        return client;
+    }
+
     private Client loadClient(String id) {
         return clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client non trouvé avec l'ID : " + id));
     }
 
-    private Product loadProduct(String id) {
-        return productRepository.findById(id)
+    private Product loadProduct(String id, Boolean isDeleted) {
+        return productRepository.findByIdAndDeleted(id, isDeleted)
                 .orElseThrow(() -> new ResourceNotFoundException("Produit non trouvé avec l'ID : " + id));
     }
 }
