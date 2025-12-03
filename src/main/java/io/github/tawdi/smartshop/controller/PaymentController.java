@@ -1,9 +1,9 @@
 package io.github.tawdi.smartshop.controller;
 
-import io.github.tawdi.smartshop.domain.entity.Payment;
 import io.github.tawdi.smartshop.dto.ApiResponseDTO;
 import io.github.tawdi.smartshop.dto.payment.CreatePaymentRequestDTO;
 import io.github.tawdi.smartshop.dto.payment.PaymentResponseDTO;
+import io.github.tawdi.smartshop.dto.payment.UpdatePaymentStatusRequestDTO;
 import io.github.tawdi.smartshop.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +19,20 @@ public class PaymentController {
 
 
     @PostMapping("/order/{orderId}")
-    public ResponseEntity<ApiResponseDTO<PaymentResponseDTO>> addPayment(  @PathVariable String orderId, @RequestBody CreatePaymentRequestDTO dto) {
+    public ResponseEntity<ApiResponseDTO<PaymentResponseDTO>> addPayment(@PathVariable String orderId, @RequestBody CreatePaymentRequestDTO dto) {
 
         PaymentResponseDTO payment = paymentService.create(dto, orderId);
 
-        return new  ResponseEntity<>(ApiResponseDTO.success("Le paiement a été réalisé avec succès.",payment),HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponseDTO.success("Le paiement a été réalisé avec succès.", payment), HttpStatus.CREATED);
+    }
+
+
+    @PatchMapping("/{paymentId}/status")
+    public ResponseEntity<ApiResponseDTO<PaymentResponseDTO>> updatePaymentStatus(@PathVariable Long paymentId, @RequestBody UpdatePaymentStatusRequestDTO dto) {
+
+        PaymentResponseDTO updated = paymentService.updateStatus(paymentId, dto);
+
+        return ResponseEntity.ok(ApiResponseDTO.success("Statut du paiement mis à jour vers " + dto.getStatus(), updated));
+
     }
 }

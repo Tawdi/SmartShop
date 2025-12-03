@@ -6,6 +6,7 @@ import io.github.tawdi.smartshop.domain.repository.OrderRepository;
 import io.github.tawdi.smartshop.domain.repository.PaymentRepository;
 import io.github.tawdi.smartshop.dto.payment.CreatePaymentRequestDTO;
 import io.github.tawdi.smartshop.dto.payment.PaymentResponseDTO;
+import io.github.tawdi.smartshop.dto.payment.UpdatePaymentStatusRequestDTO;
 import io.github.tawdi.smartshop.enums.OrderStatus;
 import io.github.tawdi.smartshop.enums.PaymentStatus;
 import io.github.tawdi.smartshop.enums.PaymentType;
@@ -72,6 +73,38 @@ public class PaymentServiceImpl implements PaymentService {
         return toDto(saved);
     }
 
+    @Override
+    @Transactional
+    public PaymentResponseDTO updateStatus(Long paymentId, UpdatePaymentStatusRequestDTO dto) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Paiement non trouvé : " + paymentId));
+
+        Order order = payment.getOrder();
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BusinessRuleViolationException(
+                    "Impossible de modifier un paiement d'une commande déjà " + order.getStatus());
+        }
+
+        PaymentStatus oldStatus = payment.getStatus();
+        PaymentStatus newStatus = dto.getStatus();
+
+        payment.setStatus(newStatus);
+
+        if (newStatus == PaymentStatus.CASHED) {
+            payment.setEncaissementDate(LocalDate.now());
+        } else {
+            payment.setEncaissementDate(null);
+        }
+
+        Payment saved = paymentRepository.save(payment);
+
+        recalculerMontantRestant(order);
+        orderRepository.save(order);
+
+        return toDto(saved);
+    }
+
     private Order loadOrder(String id) {
         return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Commande introuvable"));
     }
@@ -104,6 +137,7 @@ public class PaymentServiceImpl implements PaymentService {
             );
         }
     }
+
     private Payment buildPayment(CreatePaymentRequestDTO dto, Order order) {
         Payment payment = new Payment();
         payment.setPaymentNumber(order.getPayments().size() + 1);
