@@ -1,12 +1,10 @@
 package io.github.tawdi.smartshop.service.implementation;
 
-import io.github.tawdi.smartshop.domain.entity.Client;
-import io.github.tawdi.smartshop.domain.entity.Order;
-import io.github.tawdi.smartshop.domain.entity.OrderItem;
-import io.github.tawdi.smartshop.domain.entity.Product;
+import io.github.tawdi.smartshop.domain.entity.*;
 import io.github.tawdi.smartshop.domain.repository.ClientRepository;
 import io.github.tawdi.smartshop.domain.repository.OrderRepository;
 import io.github.tawdi.smartshop.domain.repository.ProductRepository;
+import io.github.tawdi.smartshop.domain.repository.PromoCodeRepository;
 import io.github.tawdi.smartshop.dto.client.ClientStats;
 import io.github.tawdi.smartshop.dto.order.OrderItemRequestDTO;
 import io.github.tawdi.smartshop.dto.order.OrderRequestDTO;
@@ -38,13 +36,16 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final PromoCodeRepository promoCodeRepository;
 
-    public OrderServiceImpl(OrderRepository repository, OrderMapper mapper, ClientRepository clientRepository, ProductRepository productRepository) {
+    public OrderServiceImpl(OrderRepository repository, OrderMapper mapper, ClientRepository clientRepository, ProductRepository productRepository , PromoCodeRepository promoCodeRepository) {
         super(repository, mapper);
         this.orderMapper = mapper;
         this.orderRepository = repository;
         this.clientRepository = clientRepository;
         this.productRepository = productRepository;
+        this.promoCodeRepository = promoCodeRepository;
+
     }
 
     @Override
@@ -98,7 +99,32 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
 
         BigDecimal promoDiscount = BigDecimal.ZERO;
         String appliedPromoCode = null;
+        if (dto.getDiscountCode() != null && !dto.getDiscountCode().isBlank()) {
+            String code = dto.getDiscountCode().trim();
 
+            if (!code.matches("PROMO-[A-Z0-9]{4}")) {
+                throw new BusinessRuleViolationException(
+                        "Code promo invalide. Format attendu : PROMO-XXXX (ex: PROMO-2025)"
+                );
+            }
+
+            PromoCode promo = promoCodeRepository.findById(code).orElse(null);
+
+            if (promo == null) {
+                throw new BusinessRuleViolationException("Code promo '" + code + "' inconnu.");
+            }
+
+            if (promo.isUsed()) {
+                throw new BusinessRuleViolationException("Code promo '" + code + "' déjà utilisé.");
+            }
+
+            promoDiscount = subtotalHT.multiply(promo.getDiscountRate()).setScale(2, RoundingMode.HALF_UP);
+            appliedPromoCode = promo.getCode();
+
+            // (usage unique)
+            promo.setUsed(true);
+            promoCodeRepository.save(promo);
+        }
         // Calcul total des remises
         BigDecimal totalDiscount = loyaltyDiscount.add(promoDiscount);
 
