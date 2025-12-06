@@ -1,12 +1,10 @@
 package io.github.tawdi.smartshop.service.implementation;
 
-import io.github.tawdi.smartshop.domain.entity.Client;
-import io.github.tawdi.smartshop.domain.entity.Order;
-import io.github.tawdi.smartshop.domain.entity.OrderItem;
-import io.github.tawdi.smartshop.domain.entity.Product;
+import io.github.tawdi.smartshop.domain.entity.*;
 import io.github.tawdi.smartshop.domain.repository.ClientRepository;
 import io.github.tawdi.smartshop.domain.repository.OrderRepository;
 import io.github.tawdi.smartshop.domain.repository.ProductRepository;
+import io.github.tawdi.smartshop.domain.repository.PromoCodeRepository;
 import io.github.tawdi.smartshop.dto.client.ClientStats;
 import io.github.tawdi.smartshop.dto.order.OrderItemRequestDTO;
 import io.github.tawdi.smartshop.dto.order.OrderRequestDTO;
@@ -18,6 +16,7 @@ import io.github.tawdi.smartshop.exception.ResourceNotFoundException;
 import io.github.tawdi.smartshop.mapper.OrderMapper;
 import io.github.tawdi.smartshop.service.OrderService;
 import io.github.tawdi.smartshop.util.TierHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,17 +29,23 @@ import java.util.List;
 @Service
 public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestDTO, OrderResponseDTO> implements OrderService {
 
+    @Value("${app.tva.rate:0.20}")
+    private BigDecimal tvaRate;
+
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final PromoCodeRepository promoCodeRepository;
 
-    public OrderServiceImpl(OrderRepository repository, OrderMapper mapper, ClientRepository clientRepository, ProductRepository productRepository) {
+    public OrderServiceImpl(OrderRepository repository, OrderMapper mapper, ClientRepository clientRepository, ProductRepository productRepository , PromoCodeRepository promoCodeRepository) {
         super(repository, mapper);
         this.orderMapper = mapper;
         this.orderRepository = repository;
         this.clientRepository = clientRepository;
         this.productRepository = productRepository;
+        this.promoCodeRepository = promoCodeRepository;
+
     }
 
     @Override
@@ -51,17 +56,18 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
 
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal subtotalHT = BigDecimal.ZERO;
-
+        boolean hasInsufficientStock = false;
         // Charger les produits
         for (OrderItemRequestDTO itemDTO : dto.getItems()) {
 
-            Product product = loadProduct(itemDTO.getProductId(),false);
+            Product product = loadProduct(itemDTO.getProductId(), false);
 
             if (product.getStock() < itemDTO.getQuantity()) {
-                throw new BusinessRuleViolationException(
-                        String.format("Stock insuffisant pour le produit %s. Disponible : %d, Demandé : %d",
-                                product.getName(), product.getStock(), itemDTO.getQuantity())
-                );
+                hasInsufficientStock = true;
+//                throw new BusinessRuleViolationException(
+//                        String.format("Stock insuffisant pour le produit %s. Disponible : %d, Demandé : %d",
+//                                product.getName(), product.getStock(), itemDTO.getQuantity())
+//                );
             }
 
             BigDecimal line = product.getPriceHT().multiply(BigDecimal.valueOf(itemDTO.getQuantity()));
@@ -93,7 +99,32 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
 
         BigDecimal promoDiscount = BigDecimal.ZERO;
         String appliedPromoCode = null;
+        if (dto.getDiscountCode() != null && !dto.getDiscountCode().isBlank()) {
+            String code = dto.getDiscountCode().trim();
 
+            if (!code.matches("PROMO-[A-Z0-9]{4}")) {
+                throw new BusinessRuleViolationException(
+                        "Code promo invalide. Format attendu : PROMO-XXXX (ex: PROMO-2025)"
+                );
+            }
+
+            PromoCode promo = promoCodeRepository.findById(code).orElse(null);
+
+            if (promo == null) {
+                throw new BusinessRuleViolationException("Code promo '" + code + "' inconnu.");
+            }
+
+            if (promo.isUsed()) {
+                throw new BusinessRuleViolationException("Code promo '" + code + "' déjà utilisé.");
+            }
+
+            promoDiscount = subtotalHT.multiply(promo.getDiscountRate()).setScale(2, RoundingMode.HALF_UP);
+            appliedPromoCode = promo.getCode();
+
+            // (usage unique)
+            promo.setUsed(true);
+            promoCodeRepository.save(promo);
+        }
         // Calcul total des remises
         BigDecimal totalDiscount = loyaltyDiscount.add(promoDiscount);
 
@@ -101,7 +132,7 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         BigDecimal amountAfterDiscount = subtotalHT.subtract(totalDiscount);
 
         // TVA 20% sur le montant APRÈS remise (règle marocaine)
-        BigDecimal tvaRate = new BigDecimal("0.20");
+
         BigDecimal tvaAmount = amountAfterDiscount.multiply(tvaRate)
                 .setScale(2, RoundingMode.HALF_UP);
 
@@ -117,8 +148,8 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         order.setDiscountCode(appliedPromoCode);
         order.setTvaAmount(tvaAmount);
         order.setTotalTTC(totalTTC);
-        order.setRemainingAmount(totalTTC);
-        order.setStatus(OrderStatus.PENDING);
+        order.setRemainingAmount(hasInsufficientStock ? BigDecimal.ZERO : totalTTC);
+        order.setStatus(hasInsufficientStock ? OrderStatus.REJECTED : OrderStatus.PENDING);
 
 
         for (OrderItem item : orderItems) {
@@ -128,13 +159,39 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         order.setOrderItems(orderItems);
 
         Order savedOrder = orderRepository.save(order);
-
-        for (OrderItem item : savedOrder.getOrderItems()) {
-            Product p = item.getProduct();
-            p.setStock(p.getStock() - item.getQuantity());
-            productRepository.save(p);
+        if (!hasInsufficientStock) {
+            for (OrderItem item : savedOrder.getOrderItems()) {
+                Product p = item.getProduct();
+                p.setStock(p.getStock() - item.getQuantity());
+                productRepository.save(p);
+            }
         }
         return orderMapper.toDto(savedOrder);
+    }
+
+
+    @Transactional
+    public OrderResponseDTO cancelOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande introuvable"));
+
+        if (!OrderStatus.PENDING.equals(order.getStatus())) {
+            throw new BusinessRuleViolationException(
+                    "Seule une commande en statut PENDING peut être annulée. Statut actuel : " + order.getStatus()
+            );
+        }
+
+        // Remettre le stock
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        Order saved = orderRepository.save(order);
+
+        return orderMapper.toDto(saved);
     }
 
     @Transactional
@@ -165,7 +222,7 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
     }
 
 
-    public Client updateClientTier(Client client, long confirmedOrderCount, BigDecimal totalConfirmedAmount) {
+    private Client updateClientTier(Client client, long confirmedOrderCount, BigDecimal totalConfirmedAmount) {
 
         CustomerTier newTier = TierHelper.calculateTier(confirmedOrderCount, totalConfirmedAmount);
 

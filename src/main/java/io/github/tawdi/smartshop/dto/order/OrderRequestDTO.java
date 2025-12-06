@@ -1,5 +1,6 @@
 package io.github.tawdi.smartshop.dto.order;
 
+import io.github.tawdi.smartshop.dto.ValidationGroups;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,14 +18,15 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderRequestDTO {
 
-    @NotNull(message = "L'ID du client est obligatoire")
+    @NotNull(groups = {ValidationGroups.Create.class ,ValidationGroups.Update.class},message = "L'ID du client est obligatoire")
     private String clientId;
 
-    @Pattern(regexp = "^$|PROMO-[A-Z0-9]{4}",
+    @Pattern(groups = {ValidationGroups.Create.class },
+            regexp = "^$|PROMO-[A-Z0-9]{4}",
             message = "Le code promo doit respecter le format PROMO-XXXX")
     private String discountCode;
 
-    @NotEmpty(message = "La commande doit contenir au moins un article")
+    @NotEmpty(groups = {ValidationGroups.Create.class ,ValidationGroups.Update.class}, message = "La commande doit contenir au moins un article")
     @Valid
     private List<OrderItemRequestDTO> items;
 }
