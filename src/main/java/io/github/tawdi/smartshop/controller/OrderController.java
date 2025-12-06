@@ -8,6 +8,7 @@ import io.github.tawdi.smartshop.dto.order.OrderResponseDTO;
 import io.github.tawdi.smartshop.enums.OrderStatus;
 import io.github.tawdi.smartshop.mapper.OrderMapper;
 import io.github.tawdi.smartshop.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,4 +55,14 @@ public class OrderController extends StringBaseController<Order, OrderRequestDTO
                 ApiResponseDTO.success("Commande confirmée avec succès", response)
         );
     }
+
+    @PatchMapping("/{id}/cancel")
+    @Operation(summary = "Annuler une commande (ADMIN uniquement)")
+    public ResponseEntity<ApiResponseDTO<OrderResponseDTO>> cancelOrder(@PathVariable String id) {
+        OrderResponseDTO canceled = orderService.cancelOrder(id);
+        return ResponseEntity.ok(ApiResponseDTO.success(
+                "Commande annulée avec succès et stock re-crédité", canceled
+        ));
+    }
+
 }

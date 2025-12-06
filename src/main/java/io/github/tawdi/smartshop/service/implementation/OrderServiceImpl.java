@@ -139,6 +139,31 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         return orderMapper.toDto(savedOrder);
     }
 
+
+    @Transactional
+    public OrderResponseDTO cancelOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande introuvable"));
+
+        if (!OrderStatus.PENDING.equals(order.getStatus())) {
+            throw new BusinessRuleViolationException(
+                    "Seule une commande en statut PENDING peut être annulée. Statut actuel : " + order.getStatus()
+            );
+        }
+
+        // Remettre le stock
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        Order saved = orderRepository.save(order);
+
+        return orderMapper.toDto(saved);
+    }
+
     @Transactional
     public OrderResponseDTO confirmOrder(String orderId) {
         Order order = orderRepository.findById(orderId)
