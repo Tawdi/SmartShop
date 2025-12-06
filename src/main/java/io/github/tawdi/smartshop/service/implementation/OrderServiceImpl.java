@@ -18,6 +18,7 @@ import io.github.tawdi.smartshop.exception.ResourceNotFoundException;
 import io.github.tawdi.smartshop.mapper.OrderMapper;
 import io.github.tawdi.smartshop.service.OrderService;
 import io.github.tawdi.smartshop.util.TierHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,9 @@ import java.util.List;
 
 @Service
 public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestDTO, OrderResponseDTO> implements OrderService {
+
+    @Value("${app.tva.rate:0.20}")
+    private BigDecimal tvaRate;
 
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
@@ -102,7 +106,7 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         BigDecimal amountAfterDiscount = subtotalHT.subtract(totalDiscount);
 
         // TVA 20% sur le montant APRÈS remise (règle marocaine)
-        BigDecimal tvaRate = new BigDecimal("0.20");
+
         BigDecimal tvaAmount = amountAfterDiscount.multiply(tvaRate)
                 .setScale(2, RoundingMode.HALF_UP);
 
