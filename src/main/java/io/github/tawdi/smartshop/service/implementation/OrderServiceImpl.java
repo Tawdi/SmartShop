@@ -208,6 +208,8 @@ public class OrderServiceImpl extends StringCrudServiceImpl<Order, OrderRequestD
         }
 
         order.setStatus(OrderStatus.CONFIRMED);
+        order.setConfirmedAt(LocalDateTime.now());
+        order.setConfirmedBy("admin");
         order = orderRepository.save(order);
 
         Client client = order.getClient();

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class PaymentResponseDTO {
     private Long id;
     private BigDecimal amount;
+    private String reference;
     private PaymentStatus status;
     private PaymentType type;
     private LocalDate paymentDate;
