@@ -1,5 +1,7 @@
 package io.github.tawdi.smartshop.controller;
 
+import io.github.tawdi.smartshop.auth.annotation.RequireRole;
+import io.github.tawdi.smartshop.auth.annotation.Role;
 import io.github.tawdi.smartshop.dto.ApiResponseDTO;
 import io.github.tawdi.smartshop.dto.ValidationGroups;
 import io.github.tawdi.smartshop.domain.entity.BaseEntity;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@RequireRole(Role.ADMIN)
 public abstract class AbstractBaseController<T extends BaseEntity<I>, I, R1, R2> implements BaseController<T, I, R1, R2> {
 
     protected final BaseCrudService<T, R1, R2, I> service;

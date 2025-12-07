@@ -22,6 +22,6 @@ public class ClientWithStatisticsDTO extends ClientResponseDTO {
 
     private Double currentDiscountRate;
     private String nextTier;
-    private BigDecimal amountNeededForNextTier;
+//    private BigDecimal amountNeededForNextTier;
 
 }
