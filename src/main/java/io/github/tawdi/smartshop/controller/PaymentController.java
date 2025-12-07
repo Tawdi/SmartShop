@@ -1,5 +1,7 @@
 package io.github.tawdi.smartshop.controller;
 
+import io.github.tawdi.smartshop.auth.annotation.RequireRole;
+import io.github.tawdi.smartshop.auth.annotation.Role;
 import io.github.tawdi.smartshop.dto.ApiResponseDTO;
 import io.github.tawdi.smartshop.dto.payment.CreatePaymentRequestDTO;
 import io.github.tawdi.smartshop.dto.payment.PaymentResponseDTO;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
+@RequireRole(Role.ADMIN)
 public class PaymentController {
 
     private final PaymentService paymentService;

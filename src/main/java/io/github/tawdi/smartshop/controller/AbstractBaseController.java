@@ -29,7 +29,7 @@ public abstract class AbstractBaseController<T extends BaseEntity<I>, I, R1, R2>
     }
 
     @Override
-    @PostMapping({"", "/"})
+    @PostMapping
     @Operation(
             summary = "Create a new resource",
             description = "Creates a new resource with the provided data. All required fields must be provided."

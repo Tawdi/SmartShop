@@ -46,7 +46,7 @@ public class OrderController extends StringBaseController<Order, OrderRequestDTO
     }
 
     @Override
-    @PostMapping({"", "/"})
+    @PostMapping
     @RequireRole(Role.ADMIN)
     public ResponseEntity<ApiResponseDTO<OrderResponseDTO>> create(
             @Validated(ValidationGroups.Create.class) @RequestBody OrderRequestDTO requestDTO) {
