@@ -25,7 +25,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // Routes public
-        if (path.startsWith("/") ||
+        if (path.equals("/") ||
                 path.startsWith("/api/auth/") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
