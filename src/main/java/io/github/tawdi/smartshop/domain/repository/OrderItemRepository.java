@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderItemRepository extends LongRepository<OrderItem> {
+
+    Boolean existsByProductId(String productId);
 }

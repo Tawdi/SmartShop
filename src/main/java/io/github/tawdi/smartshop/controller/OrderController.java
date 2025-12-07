@@ -67,7 +67,7 @@ public class OrderController extends StringBaseController<Order, OrderRequestDTO
 
     @GetMapping("/filters")
     @RequireRole(Role.ADMIN)
-    public ResponseEntity<ApiResponseDTO<Page<OrderResponseDTO>>> getAllPaginated(OrderSearchCriteria criteria, @ParameterObject Pageable pageable){
+    public ResponseEntity<ApiResponseDTO<Page<OrderResponseDTO>>> getAllWithFilters(OrderSearchCriteria criteria, @ParameterObject Pageable pageable){
 
         Specification<Order> spec = OrderSpecification.withCriteria(criteria, null);
         Page<OrderResponseDTO> page = orderService.findAll(pageable,spec);

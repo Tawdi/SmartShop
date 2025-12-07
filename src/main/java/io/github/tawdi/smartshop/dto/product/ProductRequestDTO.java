@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @Data
 public class ProductRequestDTO {
 
-    @NotBlank(groups = ValidationGroups.Create.class)
-    private String reference;
+//    @NotBlank(groups = ValidationGroups.Create.class)
+//    private String reference;
 
     @NotBlank(groups = ValidationGroups.Create.class)
     private String name;
