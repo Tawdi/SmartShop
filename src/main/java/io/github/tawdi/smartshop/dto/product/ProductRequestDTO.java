@@ -9,6 +9,7 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Data
+@Builder
 public class ProductRequestDTO {
 
 //    @NotBlank(groups = ValidationGroups.Create.class)
