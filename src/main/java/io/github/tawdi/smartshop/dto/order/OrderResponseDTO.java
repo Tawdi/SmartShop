@@ -2,6 +2,7 @@ package io.github.tawdi.smartshop.dto.order;
 
 import io.github.tawdi.smartshop.dto.BaseResponseDTO;
 import io.github.tawdi.smartshop.dto.client.ClientResponseDTO;
+import io.github.tawdi.smartshop.dto.payment.PaymentResponseDTO;
 import io.github.tawdi.smartshop.enums.OrderStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,4 +33,5 @@ public class OrderResponseDTO extends BaseResponseDTO<String> {
     private String confirmedBy;
 
     private List<OrderItemResponseDTO> orderItems;
+    private List<PaymentResponseDTO> payments;
 }

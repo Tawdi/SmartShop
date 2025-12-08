@@ -124,7 +124,7 @@ databaseChangeLog:
         - insert:
             tableName: products
             columns:
-              - column: { name: id, value: "prod-1111-1111-1111-111111111111" }
+              - column: { name: id, value: "prod1111-1111-1111-1111-111111111111" }
               - column: { name: reference, value: "LAP-DL15" }
               - column: { name: name, value: "Dell Latitude 5520 i7" }
               - column: { name: priceht, value: "12500.00" }
@@ -136,7 +136,7 @@ databaseChangeLog:
         - insert:
             tableName: products
             columns:
-              - column: { name: id, value: "prod-2222-2222-2222-222222222222" }
+              - column: { name: id, value: "prod2222-2222-2222-2222-222222222222" }
               - column: { name: reference, value: "HP-ELITE850" }
               - column: { name: name, value: "HP EliteBook 850 G8" }
               - column: { name: priceht, value: "14800.00" }
@@ -148,7 +148,7 @@ databaseChangeLog:
         - insert:
             tableName: products
             columns:
-              - column: { name: id, value: "prod-3333-3333-3333-333333333333" }
+              - column: { name: id, value: "prod3333-3333-3333-3333-333333333333" }
               - column: { name: reference, value: "MON-SAM27" }
               - column: { name: name, value: "Écran Samsung 27\" 4K" }
               - column: { name: priceht, value: "4200.00" }
@@ -160,7 +160,7 @@ databaseChangeLog:
         - insert:
             tableName: products
             columns:
-              - column: { name: id, value: "prod-4444-4444-4444-444444444444" }
+              - column: { name: id, value: "prod4444-4444-4444-4444-444444444444" }
               - column: { name: reference, value: "RAM-32GB" }
               - column: { name: name, value: "RAM DDR4 32Go 3200MHz" }
               - column: { name: priceht, value: "1850.00" }
@@ -172,7 +172,7 @@ databaseChangeLog:
         - insert:
             tableName: products
             columns:
-              - column: { name: id, value: "prod-5555-5555-5555-555555555555" }
+              - column: { name: id, value: "prod5555-5555-5555-5555-555555555555" }
               - column: { name: reference, value: "SSD-1TB" }
               - column: { name: name, value: "SSD NVMe 1To Samsung" }
               - column: { name: priceht, value: "1350.00" }
@@ -254,7 +254,7 @@ databaseChangeLog:
         - insert:
             tableName: orders
             columns:
-              - column: { name: id, value: "ord1-1111-1111-1111-111111111111" }
+              - column: { name: id, value: "ord11111-1111-1111-1111-111111111111" }
               - column: { name: order_date, valueComputed: "NOW()" }
               - column: { name: subtotalht, value: "26900.00" }
               - column: { name: discount_amount, value: "0.00" }
@@ -269,7 +269,7 @@ databaseChangeLog:
         - insert:
             tableName: orders
             columns:
-              - column: { name: id, value: "ord2-2222-2222-2222-222222222222" }
+              - column: { name: id, value: "ord22222-2222-2222-2222-222222222222" }
               - column: { name: order_date, valueComputed: "NOW()" }
               - column: { name: subtotalht, value: "16150.00" }
               - column: { name: discount_amount, value: "0.00" }
@@ -291,8 +291,8 @@ databaseChangeLog:
               - column: { name: quantity, value: 2 }
               - column: { name: unit_priceht, value: "12500.00" }
               - column: { name: line_totalht, value: "25000.00" }
-              - column: { name: order_id, value: "ord1-1111-1111-1111-111111111111" }
-              - column: { name: product_id, value: "prod-1111-1111-1111-111111111111" }
+              - column: { name: order_id, value: "ord11111-1111-1111-1111-111111111111" }
+              - column: { name: product_id, value: "prod1111-1111-1111-1111-111111111111" }
               - column: { name: created_at, valueComputed: "NOW()" }
               - column: { name: updated_at, valueComputed: "NOW()" }
 
@@ -302,8 +302,8 @@ databaseChangeLog:
               - column: { name: quantity, value: 1 }
               - column: { name: unit_priceht, value: "4200.00" }
               - column: { name: line_totalht, value: "4200.00" }
-              - column: { name: order_id, value: "ord1-1111-1111-1111-111111111111" }
-              - column: { name: product_id, value: "prod-3333-3333-3333-333333333333" }
+              - column: { name: order_id, value: "ord11111-1111-1111-1111-111111111111" }
+              - column: { name: product_id, value: "prod3333-3333-3333-3333-333333333333" }
               - column: { name: created_at, valueComputed: "NOW()" }
               - column: { name: updated_at, valueComputed: "NOW()" }
 
@@ -314,8 +314,8 @@ databaseChangeLog:
               - column: { name: quantity, value: 1 }
               - column: { name: unit_priceht, value: "14800.00" }
               - column: { name: line_totalht, value: "14800.00" }
-              - column: { name: order_id, value: "ord2-2222-2222-2222-222222222222" }
-              - column: { name: product_id, value: "prod-2222-2222-2222-222222222222" }
+              - column: { name: order_id, value: "ord22222-2222-2222-2222-222222222222" }
+              - column: { name: product_id, value: "prod2222-2222-2222-2222-222222222222" }
               - column: { name: created_at, valueComputed: "NOW()" }
               - column: { name: updated_at, valueComputed: "NOW()" }
 
@@ -325,7 +325,7 @@ databaseChangeLog:
               - column: { name: quantity, value: 3 }
               - column: { name: unit_priceht, value: "1350.00" }
               - column: { name: line_totalht, value: "4050.00" }
-              - column: { name: order_id, value: "ord2-2222-2222-2222-222222222222" }
-              - column: { name: product_id, value: "prod-5555-5555-5555-555555555555" }
+              - column: { name: order_id, value: "ord22222-2222-2222-2222-222222222222" }
+              - column: { name: product_id, value: "prod5555-5555-5555-5555-555555555555" }
               - column: { name: created_at, valueComputed: "NOW()" }
               - column: { name: updated_at, valueComputed: "NOW()" }

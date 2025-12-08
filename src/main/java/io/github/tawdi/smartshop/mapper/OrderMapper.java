@@ -9,7 +9,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,uses = {OrderItemMapper.class})
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,uses = {PaymentMapper.class,OrderItemMapper.class})
 public interface OrderMapper extends BaseMapper<Order, OrderRequestDTO, OrderResponseDTO> {
 
     @Override
@@ -23,4 +23,7 @@ public interface OrderMapper extends BaseMapper<Order, OrderRequestDTO, OrderRes
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     void updateEntityFromDto(OrderRequestDTO dto, @MappingTarget Order entity);
+
+    @Override
+    OrderResponseDTO toDto(Order entity);
 }
