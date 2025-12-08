@@ -82,9 +82,15 @@ Application disponible sur → `http://localhost:8080`
 
 ### Comptes de Test
 
-| Username   | Password  | Rôle   |
-|------------|-----------|--------|
-| admin      | admin123  | ADMIN  |
+| Username | Password  | Rôle   |
+|----------|-----------|--------|
+| admin    | admin123  | ADMIN  |
+| client1  | password  | CLIENT |
+| client2  | password  | CLIENT |
+| client3  | password  | CLIENT |
+| client4  | password  | CLIENT |
+| client5  | password  | CLIENT |
+
 
 ## Diagramme de Classes UML
 ![Diagramme UML](docs/smartshop.d.calss.drawio.png)

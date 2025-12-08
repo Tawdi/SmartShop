@@ -13,3 +13,5 @@
         file: db/changelog/2025/11/28-01-changelog-add-column-to-order_items-table.yaml
     - include:
         file: db/changelog/2025/12/06-02-changelog.yaml
+    - include:
+        file: db/changelog/2025/12/08-01-changelog-fake-data.yaml
